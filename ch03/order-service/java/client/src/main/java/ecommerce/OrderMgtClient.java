@@ -3,8 +3,9 @@ package ecommerce;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.grpc.stub.StreamObservers;
 
 import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
@@ -28,6 +29,20 @@ public class OrderMgtClient {
                 .setDestination("San Jose, CA")
                 .setPrice(2300)
                 .build();
+
+        // Get Order
+        StringValue idNotFound = StringValue.newBuilder().setValue("404").build();
+        try {
+            OrderManagementOuterClass.Order orderResponseNotFound = stub.getOrder(idNotFound);
+            logger.info("GetOrder Not Found Response -> : " + orderResponseNotFound.toString());
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.NOT_FOUND.getCode()) {
+                logger.info("Order not found");
+            } else {
+                throw e;
+            }
+        }
+
 
         // Add Order
         StringValue result = stub.addOrder(order);
@@ -56,8 +71,6 @@ public class OrderMgtClient {
 
         // Process Order
         invokeOrderProcess(asyncStub);
-
-
 
     }
 

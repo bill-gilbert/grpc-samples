@@ -1,10 +1,13 @@
 package ecommerce;
 
 import com.google.protobuf.StringValue;
-import com.google.protobuf.StringValueOrBuilder;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,7 +81,10 @@ public class OrderMgtServiceImpl extends OrderManagementGrpc.OrderManagementImpl
             responseObserver.onCompleted();
         } else  {
             logger.info("Order : " + request.getValue() + " - Not found.");
-            responseObserver.onCompleted();
+            // responseObserver.onCompleted();
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription("Order not found for ID: " + request.getValue())
+                    .asRuntimeException());
         }
         // ToDo  Handle errors
         // responseObserver.onError();
